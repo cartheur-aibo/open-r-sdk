@@ -1,10 +1,14 @@
 #!/bin/sh
 
+set -eu
+
 # ***************************
 # ****** CONFIGURATION ****** 
 # ***************************
 
-PREFIX=/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/openr-debian/sdk/local/OPEN_R_SDK
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+PREFIX=${PREFIX:-"$REPO_ROOT/local/rebuilt_OPEN_R_SDK"}
 TARGET=mipsel-linux
 
 BINUTILS=binutils-2.15
@@ -13,7 +17,26 @@ NEWLIB=newlib-1.15.0
 OPENRSDK=OPEN_R_SDK-1.1.5-r5
 
 BUILDDIR=bld-
-export CFLAGS="-O2"
+export CFLAGS="${CFLAGS:--O2 -std=gnu89 -traditional-cpp}"
+OPENRSDK_SOURCE_DIR=${OPENRSDK_SOURCE_DIR:-"$REPO_ROOT/local/OPEN_R_SDK"}
+MAKE_COMPAT_FLAGS="MAKEINFO=true"
+
+ensure_libc_dash() {
+	if [ ! -f "$PREFIX/$TARGET/lib/libc.a" ]; then
+		echo "Missing $PREFIX/$TARGET/lib/libc.a, cannot prepare libc-.a."
+		exit 1
+	fi
+
+	echo "Preparing libc-.a compatibility archive..."
+	rm -f "$PREFIX/$TARGET/lib/libc-.a" || exit 1
+	cp "$PREFIX/$TARGET/lib/libc.a" "$PREFIX/$TARGET/lib/libc-.a" || exit 1
+	"$PREFIX/bin/$TARGET-ar" d "$PREFIX/$TARGET/lib/libc-.a" \
+		mallocr.o freer.o reallocr.o callocr.o cfreer.o malignr.o \
+		vallocr.o pvallocr.o mallinfor.o mallstatsr.o msizer.o malloptr.o \
+		calloc.o malign.o msize.o mstats.o mtrim.o realloc.o valloc.o malloc.o \
+		abort.o sbrkr.o exit.o rename.o || exit 1
+	"$PREFIX/bin/$TARGET-ranlib" "$PREFIX/$TARGET/lib/libc-.a" || exit 1
+}
 
 
 # *******************
@@ -21,6 +44,8 @@ export CFLAGS="-O2"
 # ******************* 
 
 PACKAGES="$BINUTILS $GCC $NEWLIB"
+
+cd "$SCRIPT_DIR"
 
 # Check packages, if they haven't been de-archived, do it
 for p in $PACKAGES; do
@@ -165,6 +190,92 @@ diff -ru newlib-1.15.0/newlib/libc/ctype/ctype_.c newlib-1.15.0-patched/newlib/l
  static _CONST char _ctype_b[128 + 256] = {
  	_CTYPE_DATA_128_256,
  	_CTYPE_DATA_0_127,
+diff -ru newlib-1.15.0/libgloss/mips/crt0_cfe.S newlib-1.15.0-patched/libgloss/mips/crt0_cfe.S
+--- newlib-1.15.0/libgloss/mips/crt0_cfe.S	2004-06-14 07:57:29.000000000 -0400
++++ newlib-1.15.0-patched/libgloss/mips/crt0_cfe.S	2026-07-02 00:00:00.000000000 +0000
+@@ -223,9 +223,9 @@
+ 	jal	main			# call the program start function
+ 	move	a0,zero			# set argc to 0; delay slot.
+ 
+-	# fall through to the "exit" routine
++	/* fall through to the "exit" routine */
+ 	jal	exit			# call libc exit to run the G++
+-					# destructors
+ +					/* destructors */
+ 	move	a0, v0			# pass through the exit code
+ 	.end	_crt0init
+diff -ru newlib-1.15.0/libgloss/config/default.mh newlib-1.15.0-patched/libgloss/config/default.mh
+--- newlib-1.15.0/libgloss/config/default.mh	2003-06-05 19:25:04.000000000 -0400
++++ newlib-1.15.0-patched/libgloss/config/default.mh	2026-07-02 00:00:00.000000000 +0000
+@@ -20,4 +20,4 @@
+ # GCC knows to run the preprocessor on .S files before it assembles them.
+ #
+ .S.o:
+-	$(CC) $(CFLAGS_FOR_TARGET) $(INCLUDES) $(CFLAGS) -c $<
++	$(CC) $(CFLAGS_FOR_TARGET) $(INCLUDES) $(CFLAGS) -traditional-cpp -c $<
+diff -ru newlib-1.15.0/libgloss/mips/Makefile.in newlib-1.15.0-patched/libgloss/mips/Makefile.in
+--- newlib-1.15.0/libgloss/mips/Makefile.in	2004-01-14 20:47:54.000000000 -0500
++++ newlib-1.15.0-patched/libgloss/mips/Makefile.in	2026-07-02 00:00:00.000000000 +0000
+@@ -217,13 +217,13 @@
+ # these are for the BSPs
+ crt0.o: ${srcdir}/crt0.S
+ pcrt0.o: ${srcdir}/crt0.S
+-	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) -DGCRT0 ${srcdir}/crt0.S -o ${PCRT0}
++	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) -traditional-cpp -DGCRT0 ${srcdir}/crt0.S -o ${PCRT0}
+ crt0_cfe.o: ${srcdir}/crt0_cfe.S
+ crt0_cygmon.o: ${srcdir}/crt0_cygmon.S
+ idtmon.o: ${srcdir}/idtmon.S
+ pmon.o: ${srcdir}/pmon.S
+-	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) $(PART_SPECIFIC_DEFINES) ${srcdir}/pmon.S -o pmon.o
++	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) -traditional-cpp $(PART_SPECIFIC_DEFINES) ${srcdir}/pmon.S -o pmon.o
+ vr4300.o: ${srcdir}/vr4300.S
+-	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) ${srcdir}/vr4300.S
++	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) -traditional-cpp ${srcdir}/vr4300.S
+ vr5xxx.o: ${srcdir}/vr5xxx.S
+-	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) ${srcdir}/vr5xxx.S
++	$(CC) -c $(CFLAGS_FOR_TARGET) $(CFLAGS) -traditional-cpp ${srcdir}/vr5xxx.S
+diff -ru newlib-1.15.0/libgloss/mips/pmon.S newlib-1.15.0-patched/libgloss/mips/pmon.S
+--- newlib-1.15.0/libgloss/mips/pmon.S	2004-01-14 20:47:54.000000000 -0500
++++ newlib-1.15.0-patched/libgloss/mips/pmon.S	2026-07-02 00:00:00.000000000 +0000
+@@ -161,8 +161,8 @@
+ 
+ #ifdef LSI
+ 
+-# For the LSI MiniRISC board, we can safely assume that we have
+-# at least one megabyte of RAM.
++/* For the LSI MiniRISC board, we can safely assume that we have */
++/* at least one megabyte of RAM. */
+ 
+ 	.globl	__sizemem
+ 	.ent	__sizemem
+diff -ru newlib-1.15.0/libgloss/mips/vr4300.S newlib-1.15.0-patched/libgloss/mips/vr4300.S
+--- newlib-1.15.0/libgloss/mips/vr4300.S	2005-09-13 05:19:16.000000000 -0400
++++ newlib-1.15.0-patched/libgloss/mips/vr4300.S	2026-07-02 00:00:00.000000000 +0000
+@@ -221,8 +221,8 @@
+ 	nop
+ 	nop
+ 	eret
+-#        j       k0
+-#        rfe
++/*      j       k0 */
++/*      rfe */
+         .set reorder
+         .set at
+         .end __buserr
+diff -ru newlib-1.15.0/libgloss/mips/vr5xxx.S newlib-1.15.0-patched/libgloss/mips/vr5xxx.S
+--- newlib-1.15.0/libgloss/mips/vr5xxx.S	2004-11-22 13:42:03.000000000 -0500
++++ newlib-1.15.0-patched/libgloss/mips/vr5xxx.S	2026-07-02 00:00:00.000000000 +0000
+@@ -337,8 +337,8 @@
+ 	nop
+ 	nop
+ 	eret
+-#        j       k0
+-#        rfe
++/*      j       k0 */
++/*      rfe */
+         .set reorder
+         .set at
+         .end __buserr
 EOF
 touch "$NEWLIB/.patched"
 fi;
@@ -187,9 +298,9 @@ if [ ! -e "$BLD/.installed" ] ; then
 	(
 		cd "$BLD" \
 		&& echo "Building ${p}..." \
-		&& make \
+		&& make $MAKE_COMPAT_FLAGS \
 		&& echo "Installing ${p}..." \
-		&& make install \
+		&& make $MAKE_COMPAT_FLAGS install \
 		&& touch ".installed"
 	) || exit 1;
 fi;
@@ -215,14 +326,15 @@ if [ ! -d "$BLD" ] ; then
 			--disable-shared --enable-languages=c,c++ --disable-threads \
 			--disable-libmudflap --with-newlib \
 	) || exit 1;
+	sed -i 's/^OUTPUT_OPTION =.*/OUTPUT_OPTION = -o $@/' "$BLD/gcc/Makefile" || exit 1;
 fi;
 if [ ! -e "$BLD/.installed" ] ; then
 	(
 		cd "$BLD" \
 		&& echo "Building ${p}..." \
-		&& make \
+		&& make $MAKE_COMPAT_FLAGS \
 		&& echo "Installing ${p}..." \
-		&& make install \
+		&& make $MAKE_COMPAT_FLAGS install \
 		&& touch ".installed"
 	) || exit 1;
 fi;
@@ -245,9 +357,9 @@ if [ ! -e "$BLD/.installed" ] ; then
 	(
 		cd "$BLD" \
 		&& echo "Building ${p}..." \
-		&& make \
+		&& make $MAKE_COMPAT_FLAGS \
 		&& echo "Installing ${p}..." \
-		&& make install \
+		&& make $MAKE_COMPAT_FLAGS install \
 		&& touch ".installed"
 	) || exit 1;
 fi;
@@ -260,16 +372,7 @@ fi;
 # Some functions in libc.a have improper implementation.  Correct
 # version of them are provided by libapsys.a.  To avoid mislinking, we
 # use libc-.a, from which the duplicated functions are removed.
-if [ ! -e "$PREFIX/$TARGET/lib/libc-.a" ] ; then
-	echo "Patching libc.a..."
-	cp "$PREFIX/$TARGET/lib/libc.a" "$PREFIX/$TARGET/lib/libc-.a" || exit 1;
-	"$PREFIX/bin/$TARGET-ar" d "$PREFIX/$TARGET/lib/libc-.a" \
-		mallocr.o freer.o reallocr.o callocr.o cfreer.o malignr.o \
-		vallocr.o pvallocr.o mallinfor.o mallstatsr.o msizer.o malloptr.o \
-		calloc.o malign.o msize.o mstats.o mtrim.o realloc.o valloc.o malloc.o \
-		abort.o sbrkr.o exit.o rename.o || exit 1;
-	"$PREFIX/bin/$TARGET-ranlib" "$PREFIX/$TARGET/lib/libc-.a" || exit 1;
-fi;
+ensure_libc_dash
 
 # ********************************
 # ****** EXTRACT OPEN-R SDK ******
@@ -295,6 +398,21 @@ if [ ! -d "$PREFIX/OPEN_R" ] ; then
 		tar -C "$PREFIX" -xf "$p.tar" || exit 1;
 	
 	else
+		if [ -d "$OPENRSDK_SOURCE_DIR/OPEN_R" ]; then
+			echo "Copying SDK payload from $OPENRSDK_SOURCE_DIR"
+			cp -a \
+				"$OPENRSDK_SOURCE_DIR/CHANGES_E.txt" \
+				"$OPENRSDK_SOURCE_DIR/CHANGES_J.txt" \
+				"$OPENRSDK_SOURCE_DIR/OPEN_R" \
+				"$OPENRSDK_SOURCE_DIR/RP_OPEN_R" \
+				"$OPENRSDK_SOURCE_DIR/tcpgw-robocup.txt" \
+				"$PREFIX"/ || exit 1
+			echo "Reusing existing OPEN_R_SDK payload because $p archive is not present."
+			echo "Toolchain and target libs are rebuilt from source tarballs in deps/."
+			echo "If you later add $p.tar.gz to deps/, this script can extract it directly."
+			echo "All Done!"
+			exit 0
+		fi
 		echo "Missing package $p in the current directory, cannot continue."
 		exit 1;
 	fi;

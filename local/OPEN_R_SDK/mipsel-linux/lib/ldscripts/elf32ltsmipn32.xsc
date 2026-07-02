@@ -3,7 +3,7 @@ OUTPUT_FORMAT("elf32-ntradlittlemips", "elf32-ntradbigmips",
 	      "elf32-ntradlittlemips")
 OUTPUT_ARCH(mips)
 ENTRY(__start)
-SEARCH_DIR("/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/openr-debian/sdk/local/OPEN_R_SDK/mipsel-linux/lib");
+SEARCH_DIR("/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/open-r-sdk/local/rebuilt_OPEN_R_SDK/mipsel-linux/lib");
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
 SECTIONS

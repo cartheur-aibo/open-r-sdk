@@ -344,7 +344,7 @@ SEND-PR: support             I need help with gcc.
 host: x86_64-unknown-linux-gnu
 build: x86_64-unknown-linux-gnu
 target: mipsel-unknown-linux-gnu
-configured with: ../gcc-3.3.6/configure --prefix=/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/openr-debian/sdk/local/OPEN_R_SDK --target=mipsel-linux --with-gnu-as --with-gnu-ld --with-headers=../newlib-1.15.0/newlib/libc/include --with-as=/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/openr-debian/sdk/local/OPEN_R_SDK/bin/mipsel-linux-as --with-ld=/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/openr-debian/sdk/local/OPEN_R_SDK/bin/mipsel-linux-ld --disable-shared --enable-languages=c,c++ --disable-threads --disable-libmudflap --with-newlib
+configured with: ../gcc-3.3.6/configure --prefix=/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/open-r-sdk/local/rebuilt_OPEN_R_SDK --target=mipsel-linux --with-gnu-as --with-gnu-ld --with-headers=../newlib-1.15.0/newlib/libc/include --with-as=/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/open-r-sdk/local/rebuilt_OPEN_R_SDK/bin/mipsel-linux-as --with-ld=/home/cartheur/ame/aiventure/aiventure-github/cartheur-aibo/open-r-sdk/local/rebuilt_OPEN_R_SDK/bin/mipsel-linux-ld --disable-shared --enable-languages=c,c++ --disable-threads --disable-libmudflap --with-newlib
 >Description:
 	$DESCRIPTION_C
 >How-To-Repeat:

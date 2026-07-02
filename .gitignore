@@ -43,12 +43,17 @@
 build/
 Build/
 build-*/
+deps/bld-*/
+deps/binutils-2.15/
+deps/gcc-3.3.6/
+deps/newlib-1.15.0/
 
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+!/Makefile
 install_manifest.txt
 compile_commands.json
 
@@ -57,6 +62,18 @@ compile_commands.json
 *.log
 *.bak
 *.swp
+*.bin
+*.BIN
+*.elf
+*.rel.elf
+*.nosnap.elf
+*.snap.cc
+*.snap.o
+*Stub.cc
+*Stub.h
+def.h
+entry.h
+samples/common/HelloWorld/MS/
 
 # vcpkg
 vcpkg_installed/
