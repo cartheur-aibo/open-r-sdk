@@ -74,6 +74,7 @@ compile_commands.json
 def.h
 entry.h
 samples/common/HelloWorld/MS/
+samples/common/W3AIBO/jpeg-6b/
 
 # vcpkg
 vcpkg_installed/
