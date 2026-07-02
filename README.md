@@ -47,6 +47,13 @@ make all-samples
 make clean
 ```
 
+ERS-7 `WCONSOLE` staging targets are also available:
+
+```sh
+make ers7-wconsole-hello-world
+make ers7-wconsole-tinyftpd
+```
+
 If you want to override the SDK location:
 
 ```sh
@@ -56,5 +63,7 @@ make hello-world OPENRSDK_ROOT=/path/to/OPEN_R_SDK
 ## Notes
 
 - Most sample makefiles default to `OPENRSDK_ROOT=/usr/local/OPEN_R_SDK`, so the root `Makefile` passes the repo-local SDK path for you.
+- The `ers7-wconsole-*` targets stage a complete ERS-7 Memory Stick tree under `build/` by copying the SDK's `WCONSOLE` base and overlaying sample objects and config files.
+- `ERS7_WCONSOLE_VARIANT` defaults to `memprot`. `memprot` enables memory protection and is better for bug isolation; `nomemprot` disables memory protection and can be useful for simpler bring-up or performance-oriented checks. We do not need to switch variants unless we have a specific reason.
 - Generated OPEN-R artifacts such as `.bin`, `.elf`, and `.snap.cc` are ignored in git.
 - `deps/build-aibo-toolchain-local.sh` is the local bootstrap script if we want to refresh or reproduce `local/OPEN_R_SDK`.
