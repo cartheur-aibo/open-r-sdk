@@ -43,6 +43,9 @@
 build/
 Build/
 build-*/
+compile/*
+!compile/local/
+!compile/local/**
 deps/bld-*/
 deps/binutils-2.15/
 deps/gcc-3.3.6/
