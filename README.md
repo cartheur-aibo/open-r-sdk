@@ -13,6 +13,15 @@ This repo already contains:
 
 This can function as an active SDK build repo. The bundled toolchain runs on this host, and at least the `HelloWorld` sample builds successfully from source.
 
+On this Debian system, the repo-root build flow has been verified with:
+
+```sh
+make doctor
+make hello-world
+make common-samples
+make all-samples
+```
+
 ## Quick start
 
 Run a quick toolchain check:
