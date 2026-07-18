@@ -12,7 +12,8 @@ bundled OPEN-R SDK workspace.
 - `ers7/`
   Buildable OPEN-R samples for ERS-7.
 - `ers100/`
-  ERS-100 era R-CODE script samples. These are not OPEN-R C++ projects.
+  ERS-100 era R-CODE script samples. These are included here as preserved
+  OPEN-R SDK v1-era material, but they are not OPEN-R C++ projects.
 - `CHANGES_E.txt`, `CHANGES_J.txt`
   Original Sony change notes from the sample archive.
 
@@ -58,7 +59,8 @@ repo, where each sample typically has:
 - an `MS/OPEN-R/...` tree for Memory Stick packaging
 
 Because of that difference, the current repo can store and document the
-`ers100` material, but it does not compile those `.R` files with `make`.
+`ers100` material as part of the older OPEN-R SDK v1-era sample set, but it
+does not compile those `.R` files with `make`.
 
 ## Practical Meaning
 
@@ -77,4 +79,4 @@ target. It would be one of these:
 
 This repository is primarily an OPEN-R SDK workspace for the ERS-200 and ERS-7
 era, with the `ers100` directory acting as preserved source material for the
-earlier R-CODE-based platform.
+earlier R-CODE-based platform and its older OPEN-R SDK v1-style sample set.

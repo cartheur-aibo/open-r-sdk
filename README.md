@@ -7,6 +7,9 @@ This repo already contains:
 - a bundled, rebuilt SDK in `local/OPEN_R_SDK`
   including the Sony `OPEN_R` / `RP_OPEN_R` payload and the working `mipsel-linux` cross-toolchain
 - Sony sample projects in `samples/`
+- preserved `samples/ers100/` material from the older OPEN-R SDK v1-era
+  ERS-100/ERS-111 R-CODE sample set; these files are included for reference
+  and preservation, but they are not built by the current SDK `make` flow
 - archived source inputs and a bootstrap script in `deps/` for rebuilding the bundled toolchain locally
 
 ## Current status
